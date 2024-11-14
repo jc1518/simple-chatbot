@@ -221,9 +221,14 @@ export function ChatBot(props: ChatBotProps) {
   return (
     <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
-        <CardTitle className="text-2xl font-bold text-center">
-          Simple Chatbot
-        </CardTitle>
+        <div className="flex items-center justify-center space-x-3">
+          <div className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300">
+            <Bot className="h-6 w-6 text-blue-600" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-gray-800">
+            Simple Chatbot
+          </CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden p-6">
         <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
@@ -253,9 +258,7 @@ export function ChatBot(props: ChatBotProps) {
           onClick={handleSignOut}
           className="flex items-center space-x-2"
         >
-          <LogOut className="h-4 w-4" />{" "}
-          {/* Changed from Trash2 to LogOut icon */}
-          Sign Out
+          <LogOut className="h-4 w-4" /> Sign Out
         </Button>
       </div>
     </Card>
