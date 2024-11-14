@@ -8,21 +8,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Trash2, LogOut } from "lucide-react";
+import { Send, Bot, User, Trash2, LogOut, Network, Link } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
 import { Sha256 } from "@aws-crypto/sha256-browser";
 import { signOut } from "aws-amplify/auth";
-import { AmplifyConfig } from "../Config";
+import { config, AmplifyConfig } from "../Config";
 import { Amplify } from "aws-amplify";
 
 Amplify.configure(AmplifyConfig);
-
-interface ChatBotProps {
-  apiUrl: string;
-}
 
 interface Message {
   text: string;
@@ -34,11 +37,23 @@ interface BedrockMessage {
   content: Array<{ text: string }>;
 }
 
-export function ChatBot(props: ChatBotProps) {
+interface Backends {
+  lambdaUrl: string;
+  apiGateway: string;
+}
+
+export function ChatBot() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [selectedEndpoint, setSelectedEndpoint] =
+    useState<keyof Backends>("lambdaUrl");
+
+  const backends: Backends = {
+    lambdaUrl: config.apiUrl,
+    apiGateway: "http://www.google.com",
+  };
 
   // Load messages from localStorage when component mounts
   useEffect(() => {
@@ -99,7 +114,12 @@ export function ChatBot(props: ChatBotProps) {
       });
       const { credentials } = await fetchAuthSession();
 
-      const url = new URL(props.apiUrl);
+      let backend = backends["lambdaUrl"];
+      if (selectedEndpoint === "apiGateway") {
+        backend = backends["apiGateway"];
+      }
+
+      const url = new URL(backend);
 
       const request = new HttpRequest({
         method: "POST",
@@ -126,7 +146,7 @@ export function ChatBot(props: ChatBotProps) {
 
       const signedRequest = await signer.sign(request);
 
-      const response = await fetch(props.apiUrl, {
+      const response = await fetch(backend, {
         method: signedRequest.method,
         headers: signedRequest.headers,
         body: signedRequest.body,
@@ -218,6 +238,10 @@ export function ChatBot(props: ChatBotProps) {
       console.log("Error signing out:", error);
     }
   };
+
+  const sharedButtonClass =
+    "h-9 px-3 flex items-center space-x-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md ring-offset-background transition-colors";
+
   return (
     <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
@@ -243,22 +267,61 @@ export function ChatBot(props: ChatBotProps) {
         isLoading={isLoading}
       />
       <div className="flex justify-center space-x-4 mx-4 mb-4">
+        <Select
+          value={selectedEndpoint}
+          onValueChange={(value) =>
+            setSelectedEndpoint(value as keyof Backends)
+          }
+        >
+          <SelectTrigger className={`w-[180px] ${sharedButtonClass}`}>
+            <SelectValue>
+              <div className="flex items-center space-x-2">
+                {selectedEndpoint === "lambdaUrl" ? (
+                  <>
+                    <Link className="h-4 w-4" />
+                    <span>Lambda URL</span>
+                  </>
+                ) : (
+                  <>
+                    <Network className="h-4 w-4" />
+                    <span>API Gateway</span>
+                  </>
+                )}
+              </div>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lambdaUrl" className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <Link className="h-4 w-4" />
+                <span>Lambda URL</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="apiGateway" className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <Network className="h-4 w-4" />
+                <span>API Gateway</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <Button
           variant="outline"
           size="sm"
           onClick={clearHistory}
-          className="flex items-center space-x-2"
+          className={sharedButtonClass}
         >
           <Trash2 className="h-4 w-4" />
-          Clear History
+          <span>Clear History</span>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={handleSignOut}
-          className="flex items-center space-x-2"
+          className={sharedButtonClass}
         >
-          <LogOut className="h-4 w-4" /> Sign Out
+          <LogOut className="h-4 w-4" />
+          <span>Sign Out</span>
         </Button>
       </div>
     </Card>
