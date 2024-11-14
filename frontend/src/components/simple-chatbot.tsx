@@ -49,12 +49,14 @@ export function ChatBot(props: ChatBotProps) {
     setIsLoading(true);
 
     try {
-      const bedrockMessages: BedrockMessage[] = [
-        {
-          role: "user",
-          content: [{ text: input }],
-        },
-      ];
+      const bedrockMessages: BedrockMessage[] = messages.map((msg) => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: [{ text: msg.text }],
+      }));
+      bedrockMessages.push({
+        role: "user",
+        content: [{ text: input }],
+      });
       const { credentials } = await fetchAuthSession();
 
       const url = new URL(props.apiUrl);
@@ -116,10 +118,27 @@ export function ChatBot(props: ChatBotProps) {
 
               if (data.type === "chunk" && data.content) {
                 result += data.content;
-                setMessages((prev) => [
-                  ...prev.slice(0, -1),
-                  { text: result, sender: "bot" },
-                ]);
+                setMessages((prev) => {
+                  // Find if there's already a bot message after the last user message
+                  let lastUserIndex = -1;
+                  for (let i = prev.length - 1; i >= 0; i--) {
+                    if (prev[i].sender === "user") {
+                      lastUserIndex = i;
+                      break;
+                    }
+                  }
+                  // If there's a bot message after the last user message, update it
+                  if (lastUserIndex >= 0 && lastUserIndex < prev.length - 1) {
+                    return prev.map((message, index) => {
+                      if (index === lastUserIndex + 1) {
+                        return { text: result, sender: "bot" };
+                      }
+                      return message;
+                    });
+                  }
+                  // Otherwise, add a new bot message
+                  return [...prev, { text: result, sender: "bot" }];
+                });
               } else if (data.type === "error") {
                 console.error("Stream error:", data.message);
                 setMessages((prev) => [
@@ -218,7 +237,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
               : "bg-secondary text-secondary-foreground"
           } shadow-sm`}
         >
-          {message.text}
+          <p className="whitespace-pre-wrap">{message.text}</p>
         </div>
       </div>
     </div>
