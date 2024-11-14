@@ -11,6 +11,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { SignatureV4 } from "@aws-sdk/signature-v4";
+import { Sha256 } from "@aws-crypto/sha256-js";
+import { HttpRequest } from "@aws-sdk/protocol-http";
+import { parseUrl } from "@aws-sdk/url-parser";
 
 interface ChatBotProps {
   apiUrl: string;
@@ -52,17 +56,51 @@ export function ChatBot(props: ChatBotProps) {
           content: [{ text: input }],
         },
       ];
-      const authToken = (await fetchAuthSession()).tokens?.idToken?.toString();
-      const response = await fetch(props.apiUrl, {
+      const { credentials } = await fetchAuthSession();
+
+      const { hostname, path } = parseUrl(props.apiUrl);
+
+      const request = new HttpRequest({
+        hostname,
+        path: path,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: authToken!,
+          host: hostname,
         },
         body: JSON.stringify({ messages: bedrockMessages }),
       });
 
+      const signer = new SignatureV4({
+        credentials: {
+          accessKeyId: credentials!.accessKeyId,
+          secretAccessKey: credentials!.secretAccessKey,
+          sessionToken: credentials!.sessionToken,
+        },
+        region: "ap-southeast-2",
+        service: "lambda",
+        sha256: Sha256,
+      });
+
+      const signedRequest = await signer.sign(request);
+
+      const response = await fetch(props.apiUrl, {
+        method: "POST",
+        headers: {
+          ...(signedRequest.headers as Record<string, string>),
+          "Content-Type": "application/json",
+          Origin: window.location.origin,
+        },
+        //credentials: "omit",
+        body: JSON.stringify({ messages: bedrockMessages }),
+      });
+
       if (!response.ok) {
+        console.error("Response status:", response.status);
+        console.error(
+          "Response headers:",
+          Object.fromEntries(response.headers)
+        );
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -119,7 +157,7 @@ export function ChatBot(props: ChatBotProps) {
     <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
         <CardTitle className="text-2xl font-bold text-center">
-          Web Chatbot
+          Simple Chatbot
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden p-6">
