@@ -9,11 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Trash2 } from "lucide-react";
+import { Send, Bot, User, Trash2, LogOut } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
 import { Sha256 } from "@aws-crypto/sha256-browser";
+import { signOut } from "aws-amplify/auth";
+import { AmplifyConfig } from "../Config";
+import { Amplify } from "aws-amplify";
+
+Amplify.configure(AmplifyConfig);
 
 interface ChatBotProps {
   apiUrl: string;
@@ -206,6 +211,13 @@ export function ChatBot(props: ChatBotProps) {
     localStorage.removeItem("chatHistory");
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.log("Error signing out:", error);
+    }
+  };
   return (
     <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
@@ -225,15 +237,27 @@ export function ChatBot(props: ChatBotProps) {
         handleSend={handleSend}
         isLoading={isLoading}
       />
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={clearHistory}
-        className="flex items-center space-x-2"
-      >
-        <Trash2 className="h-4 w-4" />
-        <span>Clear History</span>
-      </Button>
+      <div className="flex justify-center space-x-4 mx-4 mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearHistory}
+          className="flex items-center space-x-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          Clear History
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSignOut}
+          className="flex items-center space-x-2"
+        >
+          <LogOut className="h-4 w-4" />{" "}
+          {/* Changed from Trash2 to LogOut icon */}
+          Sign Out
+        </Button>
+      </div>
     </Card>
   );
 }
