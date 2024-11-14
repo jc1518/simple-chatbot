@@ -8,6 +8,18 @@ const modelId =
 export const handler = streamifyResponse(
   async (event: any, streamResponse: ResponseStream) => {
     console.log(event);
+    if (event.requestContext.http.method === "OPTIONS") {
+      return {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-amz-content-sha256",
+        },
+        body: "",
+      };
+    }
     try {
       const body = event.body ? JSON.parse(event.body) : {};
       const messages = body.messages || [
@@ -18,6 +30,18 @@ export const handler = streamifyResponse(
         bedrockRegion,
         modelId,
         messages
+      );
+
+      streamResponse.write(
+        JSON.stringify({
+          type: "headers",
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers":
+              "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-amz-content-sha256",
+          },
+        }) + "\n"
       );
 
       for await (const chunk of responseStream.stream!) {
@@ -55,5 +79,6 @@ export const handler = streamifyResponse(
     } finally {
       streamResponse.end();
     }
+    return;
   }
 );

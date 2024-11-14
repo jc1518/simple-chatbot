@@ -29,7 +29,7 @@ export class SimpleChatbotStack extends Stack {
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ["lambda:InvokeFunctionUrl"],
-        resources: [`${lambdaResources.chatBot.functionArn}/*`],
+        resources: [lambdaResources.chatBot.functionArn],
       })
     );
 

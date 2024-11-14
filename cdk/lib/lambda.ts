@@ -14,7 +14,6 @@ import {
   ServicePrincipal,
   PolicyStatement,
   Effect,
-  FederatedPrincipal,
 } from "aws-cdk-lib/aws-iam";
 import { IUserPool } from "aws-cdk-lib/aws-cognito";
 
@@ -72,21 +71,25 @@ export class LambdaResources extends Construct {
         allowedHeaders: [
           "Content-Type",
           "X-Amz-Date",
+          "X-Amz-Security-Token",
           "Authorization",
           "X-Api-Key",
-          "X-Amz-Security-Token",
           "X-Amz-User-Agent",
+          "x-amz-content-sha256",
+          "Access-Control-Allow-Origin",
+          "Access-Control-Allow-Headers",
+          "Access-Control-Allow-Methods",
         ],
         allowedMethods: [HttpMethod.POST],
+        exposedHeaders: [
+          "x-amzn-RequestId",
+          "x-amzn-ErrorType",
+          "x-amzn-ErrorMessage",
+        ],
+        maxAge: Duration.days(1),
       },
       invokeMode: InvokeMode.RESPONSE_STREAM,
     });
-
-    // chatBot.addPermission("CognitoAuthenticatedInvoke", {
-    //   principal: new ServicePrincipal("cognito-identity.amazonaws.com"),
-    //   action: "lambda:InvokeFunctionUrl",
-    //   sourceArn: props.userPool.userPoolArn,
-    // });
 
     this.chatBot = chatBot;
     this.chatBotUrl = chatBotUrl;

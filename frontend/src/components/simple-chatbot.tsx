@@ -12,9 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
-import { Sha256 } from "@aws-crypto/sha256-js";
 import { HttpRequest } from "@aws-sdk/protocol-http";
-import { parseUrl } from "@aws-sdk/url-parser";
+import { Sha256 } from "@aws-crypto/sha256-browser";
 
 interface ChatBotProps {
   apiUrl: string;
@@ -58,15 +57,16 @@ export function ChatBot(props: ChatBotProps) {
       ];
       const { credentials } = await fetchAuthSession();
 
-      const { hostname, path } = parseUrl(props.apiUrl);
+      const url = new URL(props.apiUrl);
 
       const request = new HttpRequest({
-        hostname,
-        path: path,
         method: "POST",
+        protocol: url.protocol,
+        hostname: url.hostname,
+        path: url.pathname,
         headers: {
           "Content-Type": "application/json",
-          host: hostname,
+          host: url.hostname,
         },
         body: JSON.stringify({ messages: bedrockMessages }),
       });
@@ -85,14 +85,9 @@ export function ChatBot(props: ChatBotProps) {
       const signedRequest = await signer.sign(request);
 
       const response = await fetch(props.apiUrl, {
-        method: "POST",
-        headers: {
-          ...(signedRequest.headers as Record<string, string>),
-          "Content-Type": "application/json",
-          Origin: window.location.origin,
-        },
-        //credentials: "omit",
-        body: JSON.stringify({ messages: bedrockMessages }),
+        method: signedRequest.method,
+        headers: signedRequest.headers,
+        body: signedRequest.body,
       });
 
       if (!response.ok) {
@@ -112,7 +107,6 @@ export function ChatBot(props: ChatBotProps) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          // Decode the chunk and split by newlines to handle multiple JSON objects
           const chunk = new TextDecoder("utf-8").decode(value);
           const lines = chunk.split("\n").filter(Boolean);
 
