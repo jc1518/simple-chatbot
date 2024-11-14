@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, Trash2 } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
@@ -35,9 +35,44 @@ export function ChatBot(props: ChatBotProps) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Load messages from localStorage when component mounts
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    try {
+      const savedMessages = localStorage.getItem("chatHistory");
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages);
+        // Validate that parsed data is an array of Message objects
+        if (
+          Array.isArray(parsedMessages) &&
+          parsedMessages.every(
+            (msg) =>
+              msg.text &&
+              typeof msg.text === "string" &&
+              (msg.sender === "user" || msg.sender === "bot")
+          )
+        ) {
+          setMessages(parsedMessages);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      // Only save if messages is not empty
+      if (messages.length > 0) {
+        localStorage.setItem("chatHistory", JSON.stringify(messages));
+      }
+
+      // Auto-scroll to bottom
+      if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      }
+    } catch (error) {
+      console.error("Error saving chat history:", error);
     }
   }, [messages]);
 
@@ -166,6 +201,11 @@ export function ChatBot(props: ChatBotProps) {
     }
   };
 
+  const clearHistory = () => {
+    setMessages([]);
+    localStorage.removeItem("chatHistory");
+  };
+
   return (
     <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
@@ -185,6 +225,15 @@ export function ChatBot(props: ChatBotProps) {
         handleSend={handleSend}
         isLoading={isLoading}
       />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={clearHistory}
+        className="flex items-center space-x-2"
+      >
+        <Trash2 className="h-4 w-4" />
+        <span>Clear History</span>
+      </Button>
     </Card>
   );
 }
