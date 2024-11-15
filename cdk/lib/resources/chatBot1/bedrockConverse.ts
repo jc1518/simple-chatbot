@@ -1,10 +1,10 @@
 import {
   BedrockRuntimeClient,
-  ConverseStreamCommand,
+  ConverseCommand,
   Message,
 } from "@aws-sdk/client-bedrock-runtime";
 
-export async function converseStreamWithModel(
+export async function converseWithModel(
   region: string,
   modelId: string,
   messages: Message[]
@@ -14,7 +14,7 @@ export async function converseStreamWithModel(
   });
   const conversation: Message[] = messages;
 
-  const command = new ConverseStreamCommand({
+  const command = new ConverseCommand({
     modelId,
     messages: conversation,
     inferenceConfig: {

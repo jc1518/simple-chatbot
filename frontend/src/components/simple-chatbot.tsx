@@ -191,59 +191,66 @@ export function ChatBot() {
         throw new Error(`HTTP error! status: ${response!.status}`);
       }
 
-      const reader = response!.body?.getReader();
-      let result = "";
+      if (selectedEndpoint === "lambdaUrl") {
+        const reader = response!.body?.getReader();
+        let result = "";
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+            const chunk = new TextDecoder("utf-8").decode(value);
+            const lines = chunk.split("\n").filter(Boolean);
 
-          const chunk = new TextDecoder("utf-8").decode(value);
-          const lines = chunk.split("\n").filter(Boolean);
+            for (const line of lines) {
+              try {
+                const data = JSON.parse(line);
 
-          for (const line of lines) {
-            try {
-              const data = JSON.parse(line);
-
-              if (data.type === "chunk" && data.content) {
-                result += data.content;
-                setMessages((prev) => {
-                  // Find if there's already a bot message after the last user message
-                  let lastUserIndex = -1;
-                  for (let i = prev.length - 1; i >= 0; i--) {
-                    if (prev[i].sender === "user") {
-                      lastUserIndex = i;
-                      break;
-                    }
-                  }
-                  // If there's a bot message after the last user message, update it
-                  if (lastUserIndex >= 0 && lastUserIndex < prev.length - 1) {
-                    return prev.map((message, index) => {
-                      if (index === lastUserIndex + 1) {
-                        return { text: result, sender: "bot" };
+                if (data.type === "chunk" && data.content) {
+                  result += data.content;
+                  setMessages((prev) => {
+                    // Find if there's already a bot message after the last user message
+                    let lastUserIndex = -1;
+                    for (let i = prev.length - 1; i >= 0; i--) {
+                      if (prev[i].sender === "user") {
+                        lastUserIndex = i;
+                        break;
                       }
-                      return message;
-                    });
-                  }
-                  // Otherwise, add a new bot message
-                  return [...prev, { text: result, sender: "bot" }];
-                });
-              } else if (data.type === "error") {
-                console.error("Stream error:", data.message);
-                setMessages((prev) => [
-                  ...prev,
-                  {
-                    text: "Sorry, there was an error. Please try again.",
-                    sender: "bot",
-                  },
-                ]);
+                    }
+                    // If there's a bot message after the last user message, update it
+                    if (lastUserIndex >= 0 && lastUserIndex < prev.length - 1) {
+                      return prev.map((message, index) => {
+                        if (index === lastUserIndex + 1) {
+                          return { text: result, sender: "bot" };
+                        }
+                        return message;
+                      });
+                    }
+                    // Otherwise, add a new bot message
+                    return [...prev, { text: result, sender: "bot" }];
+                  });
+                } else if (data.type === "error") {
+                  console.error("Stream error:", data.message);
+                  setMessages((prev) => [
+                    ...prev,
+                    {
+                      text: "Sorry, there was an error. Please try again.",
+                      sender: "bot",
+                    },
+                  ]);
+                }
+              } catch (e) {
+                console.error("Error parsing JSON:", e);
               }
-            } catch (e) {
-              console.error("Error parsing JSON:", e);
             }
           }
         }
+      }
+
+      if (selectedEndpoint === "apiUrl") {
+        const data = await response!.json();
+        const result = data.output?.message?.content[0].text;
+        setMessages((prev) => [...prev, { text: result, sender: "bot" }]);
       }
     } catch (error) {
       console.error("Error:", error);
