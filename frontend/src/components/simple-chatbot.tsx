@@ -255,7 +255,7 @@ export function ChatBot() {
     "h-9 px-3 flex items-center space-x-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md ring-offset-background transition-colors";
 
   return (
-    <Card className="w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
+    <Card className="w-[90vw] max-w-6xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
         <div className="flex items-center justify-center space-x-3">
           <div className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300">
