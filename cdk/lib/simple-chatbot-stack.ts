@@ -1,7 +1,12 @@
 import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
-import { CognitoResources, LambdaResources, CloudFrontResources } from ".";
+import {
+  CognitoResources,
+  LambdaResources,
+  CloudFrontResources,
+  ApiResources,
+} from ".";
 
 export interface SimpleChatbotProps extends StackProps {
   appName: string;
@@ -25,6 +30,12 @@ export class SimpleChatbotStack extends Stack {
       modelId: props.modelId,
     });
 
+    const apiResources = new ApiResources(this, "Api", {
+      userPool: cognitoResources.userPool,
+      bedrockRegion: props.bedrockRegion,
+      modelId: props.modelId,
+    });
+
     cognitoResources.authenticatedRole.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
@@ -35,7 +46,7 @@ export class SimpleChatbotStack extends Stack {
 
     const cloudFrontResources = new CloudFrontResources(this, "CloudFront", {
       lambdaUrl: lambdaResources.chatBotUrl.url,
-      apiUrl: "https://wwww.google.com",
+      apiUrl: apiResources.chatBot1ApiUrl,
       userPool: cognitoResources.userPool,
       userPoolClient: cognitoResources.userPoolClient,
       userPoolRegion: cognitoResources.userPoolRegion,
