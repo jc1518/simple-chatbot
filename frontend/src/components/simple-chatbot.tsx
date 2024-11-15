@@ -16,7 +16,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Trash2, LogOut, Network, Link } from "lucide-react";
+import {
+  Send,
+  Bot,
+  User,
+  Trash2,
+  LogOut,
+  Network,
+  Link,
+  Check,
+  Copy,
+} from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
@@ -24,6 +34,8 @@ import { Sha256 } from "@aws-crypto/sha256-browser";
 import { signOut } from "aws-amplify/auth";
 import { config, AmplifyConfig } from "../Config";
 import { Amplify } from "aws-amplify";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 Amplify.configure(AmplifyConfig);
 
@@ -347,6 +359,42 @@ interface MessageBubbleProps {
 }
 
 function MessageBubble({ message }: MessageBubbleProps) {
+  const detectCodeBlocks = (text: string) => {
+    const segments = text.split("```");
+    if (segments.length < 3) return [{ type: "text", content: text }];
+
+    return segments.map((segment, index) => {
+      if (index % 2 === 0) {
+        return { type: "text", content: segment };
+      } else {
+        const lines = segment.split("\n");
+        const language = lines[0].trim();
+        const code = lines.slice(1).join("\n");
+        return { type: "code", content: code, language };
+      }
+    });
+  };
+
+  const renderContent = (text: string) => {
+    const segments = detectCodeBlocks(text);
+
+    return segments.map((segment, index) => {
+      if (segment.type === "text") {
+        return (
+          <p key={index} className="whitespace-pre-wrap">
+            {segment.content}
+          </p>
+        );
+      } else {
+        return (
+          <div key={index} className="my-2">
+            <CodeBlock code={segment.content} language={segment.language!} />
+          </div>
+        );
+      }
+    });
+  };
+
   return (
     <div
       className={`flex mb-4 ${
@@ -360,25 +408,70 @@ function MessageBubble({ message }: MessageBubbleProps) {
       >
         <div
           className={`p-2 rounded-full ${
-            message.sender === "user" ? "bg-primary" : "bg-secondary"
-          } shadow-sm`}
+            message.sender === "user"
+              ? "bg-blue-600"
+              : "bg-gray-200 dark:bg-gray-700"
+          }`}
         >
           {message.sender === "user" ? (
-            <User className="h-5 w-5 text-primary-foreground" />
+            <User className="h-5 w-5 text-white" />
           ) : (
-            <Bot className="h-5 w-5 text-secondary-foreground" />
+            <Bot className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           )}
         </div>
         <div
-          className={`p-3 rounded-lg ${
+          className={`p-4 rounded-lg ${
             message.sender === "user"
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-secondary-foreground"
-          } shadow-sm`}
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 dark:bg-gray-800"
+          }`}
         >
-          <p className="whitespace-pre-wrap">{message.text}</p>
+          {renderContent(message.text)}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CodeBlock({ code, language }: { code: string; language: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group">
+      <div className="absolute right-2 top-2 z-10 flex items-center space-x-2">
+        <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">
+          {language}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="bg-gray-800 hover:bg-gray-700 text-gray-300 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          {copied ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        language={language}
+        style={vscDarkPlus}
+        customStyle={{
+          margin: 0,
+          borderRadius: "0.375rem",
+          fontSize: "0.9rem",
+          padding: "1.5rem 1rem",
+        }}
+        showLineNumbers
+      >
+        {code}
+      </SyntaxHighlighter>
     </div>
   );
 }
