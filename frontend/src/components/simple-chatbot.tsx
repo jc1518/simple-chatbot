@@ -120,60 +120,78 @@ export function ChatBot() {
         role: msg.sender === "user" ? "user" : "assistant",
         content: [{ text: msg.text }],
       }));
+
       bedrockMessages.push({
         role: "user",
         content: [{ text: input }],
       });
-      const { credentials } = await fetchAuthSession();
 
-      let backend = backends["lambdaUrl"];
-      if (selectedEndpoint === "apiUrl") {
-        backend = backends["apiUrl"];
+      const { credentials } = await fetchAuthSession();
+      let response: Response | null = null;
+
+      if (selectedEndpoint === "lambdaUrl") {
+        const backend = backends["lambdaUrl"];
+        const url = new URL(backend);
+
+        const request = new HttpRequest({
+          method: "POST",
+          protocol: url.protocol,
+          hostname: url.hostname,
+          path: url.pathname,
+          headers: {
+            "Content-Type": "application/json",
+            host: url.hostname,
+          },
+          body: JSON.stringify({ messages: bedrockMessages }),
+        });
+
+        const signer = new SignatureV4({
+          credentials: {
+            accessKeyId: credentials!.accessKeyId,
+            secretAccessKey: credentials!.secretAccessKey,
+            sessionToken: credentials!.sessionToken,
+          },
+          region: "ap-southeast-2",
+          service: "lambda",
+          sha256: Sha256,
+        });
+
+        const signedRequest = await signer.sign(request);
+
+        response = await fetch(backend, {
+          method: signedRequest.method,
+          headers: signedRequest.headers,
+          body: signedRequest.body,
+        });
       }
 
-      const url = new URL(backend);
+      if (selectedEndpoint === "apiUrl") {
+        const backend = backends["apiUrl"];
 
-      const request = new HttpRequest({
-        method: "POST",
-        protocol: url.protocol,
-        hostname: url.hostname,
-        path: url.pathname,
-        headers: {
-          "Content-Type": "application/json",
-          host: url.hostname,
-        },
-        body: JSON.stringify({ messages: bedrockMessages }),
-      });
+        const authToken = (
+          await fetchAuthSession()
+        ).tokens?.idToken?.toString();
 
-      const signer = new SignatureV4({
-        credentials: {
-          accessKeyId: credentials!.accessKeyId,
-          secretAccessKey: credentials!.secretAccessKey,
-          sessionToken: credentials!.sessionToken,
-        },
-        region: "ap-southeast-2",
-        service: "lambda",
-        sha256: Sha256,
-      });
+        response = await fetch(`${backend}/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authToken!,
+          },
+          body: JSON.stringify({ messages: bedrockMessages }),
+        });
+      }
 
-      const signedRequest = await signer.sign(request);
-
-      const response = await fetch(backend, {
-        method: signedRequest.method,
-        headers: signedRequest.headers,
-        body: signedRequest.body,
-      });
-
-      if (!response.ok) {
-        console.error("Response status:", response.status);
+      if (!response!.ok) {
+        console.error("Response status:", response!.status);
         console.error(
           "Response headers:",
-          Object.fromEntries(response.headers)
+          Object.fromEntries(response!.headers)
         );
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response!.status}`);
       }
 
-      const reader = response.body?.getReader();
+      const reader = response!.body?.getReader();
       let result = "";
 
       if (reader) {
