@@ -18,6 +18,7 @@ import { Construct } from "constructs";
 import * as fsExtra from "fs-extra";
 
 interface CloudFrontResourcesProps {
+  lambdaUrl: string;
   apiUrl: string;
   userPool: IUserPool;
   userPoolClient: IUserPoolClient;
@@ -76,6 +77,7 @@ export class CloudFrontResources extends Construct {
     });
 
     const config = {
+      lambdaUrl: props.lambdaUrl,
       apiUrl: props.apiUrl,
       userPoolRegion: props.userPoolRegion,
       userPoolId: props.userPool.userPoolId,

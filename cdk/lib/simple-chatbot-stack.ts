@@ -34,7 +34,8 @@ export class SimpleChatbotStack extends Stack {
     );
 
     const cloudFrontResources = new CloudFrontResources(this, "CloudFront", {
-      apiUrl: lambdaResources.chatBotUrl.url,
+      lambdaUrl: lambdaResources.chatBotUrl.url,
+      apiUrl: "https://wwww.google.com",
       userPool: cognitoResources.userPool,
       userPoolClient: cognitoResources.userPoolClient,
       userPoolRegion: cognitoResources.userPoolRegion,

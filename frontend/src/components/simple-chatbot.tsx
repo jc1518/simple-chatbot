@@ -39,7 +39,7 @@ interface BedrockMessage {
 
 interface Backends {
   lambdaUrl: string;
-  apiGateway: string;
+  apiUrl: string;
 }
 
 export function ChatBot() {
@@ -51,8 +51,8 @@ export function ChatBot() {
     useState<keyof Backends>("lambdaUrl");
 
   const backends: Backends = {
-    lambdaUrl: config.apiUrl,
-    apiGateway: "http://www.google.com",
+    lambdaUrl: config.lambdaUrl,
+    apiUrl: config.apiUrl,
   };
 
   // Load messages from localStorage when component mounts
@@ -115,8 +115,8 @@ export function ChatBot() {
       const { credentials } = await fetchAuthSession();
 
       let backend = backends["lambdaUrl"];
-      if (selectedEndpoint === "apiGateway") {
-        backend = backends["apiGateway"];
+      if (selectedEndpoint === "apiUrl") {
+        backend = backends["apiUrl"];
       }
 
       const url = new URL(backend);
@@ -297,7 +297,7 @@ export function ChatBot() {
                 <span>Lambda URL</span>
               </div>
             </SelectItem>
-            <SelectItem value="apiGateway" className="flex items-center">
+            <SelectItem value="apiUrl" className="flex items-center">
               <div className="flex items-center space-x-2">
                 <Network className="h-4 w-4" />
                 <span>API Gateway</span>
