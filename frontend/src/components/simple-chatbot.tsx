@@ -10,18 +10,7 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ControlButtons } from "./ui/control-buttons";
-import {
-  Send,
-  Bot,
-  User,
-  Trash2,
-  LogOut,
-  Network,
-  Link,
-  Check,
-  Copy,
-  Wifi,
-} from "lucide-react";
+import { Send, Bot, User, Check, Copy } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
