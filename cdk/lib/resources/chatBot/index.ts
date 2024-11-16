@@ -1,5 +1,5 @@
 import { streamifyResponse, ResponseStream } from "lambda-stream";
-import { converseStreamWithModel } from "./bedrockConverse";
+import { converseStreamWithModel } from "../bedrockConverse";
 
 const bedrockRegion = process.env.BEDROCK_REGION || "us-west-2";
 const modelId =

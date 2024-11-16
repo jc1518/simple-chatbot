@@ -1,4 +1,4 @@
-import { converseWithModel } from "./bedrockConverse";
+import { converseWithModel } from "../bedrockConverse";
 
 const bedrockRegion = process.env.BEDROCK_REGION || "us-west-2";
 const modelId =

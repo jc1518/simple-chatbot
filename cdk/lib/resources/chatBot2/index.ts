@@ -1,4 +1,4 @@
-import { converseStreamWithModel } from "./bedrockConverse";
+import { converseStreamWithModel } from "../bedrockConverse";
 import {
   ApiGatewayManagementApi,
   GoneException,
