@@ -6,6 +6,7 @@ import {
   LambdaResources,
   CloudFrontResources,
   ApiResources,
+  WebSocketResources,
 } from ".";
 
 export interface SimpleChatbotProps extends StackProps {
@@ -36,6 +37,12 @@ export class SimpleChatbotStack extends Stack {
       modelId: props.modelId,
     });
 
+    const webSocketResources = new WebSocketResources(this, "WebSocket", {
+      userPool: cognitoResources.userPool,
+      bedrockRegion: props.bedrockRegion,
+      modelId: props.modelId,
+    });
+
     cognitoResources.authenticatedRole.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
@@ -47,6 +54,7 @@ export class SimpleChatbotStack extends Stack {
     const cloudFrontResources = new CloudFrontResources(this, "CloudFront", {
       lambdaUrl: lambdaResources.chatBotUrl.url,
       apiUrl: apiResources.chatBot1ApiUrl,
+      webSocketUrl: webSocketResources.webSocketUrl,
       userPool: cognitoResources.userPool,
       userPoolClient: cognitoResources.userPoolClient,
       userPoolRegion: cognitoResources.userPoolRegion,

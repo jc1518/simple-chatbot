@@ -22,6 +22,7 @@
     "typescript": "~5.6.3"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.693.0",
     "@aws-sdk/client-bedrock-runtime": "^3.687.0",
     "aws-cdk-lib": "2.165.0",
     "constructs": "^10.0.0",

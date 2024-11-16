@@ -26,6 +26,7 @@ import {
   Link,
   Check,
   Copy,
+  Wifi,
 } from "lucide-react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
@@ -52,6 +53,7 @@ interface BedrockMessage {
 interface Backends {
   lambdaUrl: string;
   apiUrl: string;
+  websocketUrl: string;
 }
 
 export function ChatBot() {
@@ -65,6 +67,7 @@ export function ChatBot() {
   const backends: Backends = {
     lambdaUrl: config.lambdaUrl,
     apiUrl: config.apiUrl,
+    websocketUrl: config.websocketUrl,
   };
 
   // Load messages from localStorage when component mounts
@@ -182,6 +185,43 @@ export function ChatBot() {
         });
       }
 
+      if (selectedEndpoint === "websocketUrl") {
+        const backend = backends["websocketUrl"];
+        const authToken = (
+          await fetchAuthSession()
+        ).tokens?.idToken?.toString();
+        const ws = new WebSocket(`${backend}?Auth=${authToken}`);
+        ws.onopen = () => {
+          console.log("WebSocket connection established");
+        };
+
+        ws.onclose = () => {
+          console.log("WebSocket connection closed");
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+        };
+
+        ws.onmessage = (event) => {
+          response = JSON.parse(event.data);
+          console.log("Received message:", response);
+        };
+
+        try {
+          await ws.send(
+            JSON.stringify({
+              action: "sendmessage",
+              messages: JSON.stringify({ messages: bedrockMessages }),
+            })
+          );
+        } catch (error) {
+          console.error("Error sending message:", error);
+        } finally {
+          ws.close();
+        }
+      }
+
       if (!response!.ok) {
         console.error("Response status:", response!.status);
         console.error(
@@ -191,7 +231,10 @@ export function ChatBot() {
         throw new Error(`HTTP error! status: ${response!.status}`);
       }
 
-      if (selectedEndpoint === "lambdaUrl") {
+      if (
+        selectedEndpoint === "lambdaUrl" ||
+        selectedEndpoint === "websocketUrl"
+      ) {
         const reader = response!.body?.getReader();
         let result = "";
         if (reader) {
@@ -318,10 +361,15 @@ export function ChatBot() {
                     <Link className="h-4 w-4" />
                     <span>Lambda URL</span>
                   </>
+                ) : selectedEndpoint === "apiUrl" ? (
+                  <>
+                    <Network className="h-4 w-4" />
+                    <span>Rest API</span>
+                  </>
                 ) : (
                   <>
                     <Network className="h-4 w-4" />
-                    <span>API Gateway</span>
+                    <span>Websocket API</span>
                   </>
                 )}
               </div>
@@ -337,7 +385,13 @@ export function ChatBot() {
             <SelectItem value="apiUrl" className="flex items-center">
               <div className="flex items-center space-x-2">
                 <Network className="h-4 w-4" />
-                <span>API Gateway</span>
+                <span>Rest API</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="webSocketUrl" className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <Wifi className="h-4 w-4" />
+                <span>Websocket API</span>
               </div>
             </SelectItem>
           </SelectContent>
