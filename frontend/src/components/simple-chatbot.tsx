@@ -187,38 +187,151 @@ export function ChatBot() {
 
       if (selectedEndpoint === "websocketUrl") {
         const backend = backends["websocketUrl"];
-        const authToken = (
-          await fetchAuthSession()
-        ).tokens?.idToken?.toString();
-        const ws = new WebSocket(`${backend}?Auth=${authToken}`);
-        ws.onopen = () => {
-          console.log("WebSocket connection established");
-        };
-
-        ws.onclose = () => {
-          console.log("WebSocket connection closed");
-        };
-
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-        };
-
-        ws.onmessage = (event) => {
-          response = JSON.parse(event.data);
-          console.log("Received message:", response);
-        };
-
         try {
-          await ws.send(
-            JSON.stringify({
-              action: "sendmessage",
-              messages: JSON.stringify({ messages: bedrockMessages }),
-            })
-          );
+          const authToken = (
+            await fetchAuthSession()
+          ).tokens?.idToken?.toString();
+
+          if (!authToken) {
+            throw new Error("Authentication token is required");
+          }
+
+          return new Promise((resolve, reject) => {
+            const ws = new WebSocket(`${backend}?Auth=${authToken}`);
+
+            ws.onopen = () => {
+              console.log(
+                "WebSocket connection established, readyState:",
+                ws.readyState
+              );
+              resolve(void 0);
+
+              try {
+                const message = {
+                  action: "sendmessage",
+                  messages: bedrockMessages,
+                };
+                ws.send(JSON.stringify(message));
+              } catch (sendError) {
+                console.error("Error sending message:", sendError);
+                reject(sendError);
+                ws.close();
+              }
+            };
+
+            ws.onmessage = (event) => {
+              try {
+                const response = JSON.parse(event.data);
+                console.log("Parsed WebSocket message:", response);
+
+                if (
+                  response.type === "message" &&
+                  response.content?.type === "chunk"
+                ) {
+                  setMessages((prev) => {
+                    // Find if there's already a bot message after the last user message
+                    let lastUserIndex = -1;
+                    for (let i = prev.length - 1; i >= 0; i--) {
+                      if (prev[i].sender === "user") {
+                        lastUserIndex = i;
+                        break;
+                      }
+                    }
+
+                    // If there's a bot message after the last user message, update it
+                    if (lastUserIndex >= 0 && lastUserIndex < prev.length - 1) {
+                      return prev.map((message, index) => {
+                        if (index === lastUserIndex + 1) {
+                          return {
+                            text: message.text + response.content.content,
+                            sender: "bot",
+                          };
+                        }
+                        return message;
+                      });
+                    }
+
+                    // Otherwise, add a new bot message
+                    return [
+                      ...prev,
+                      {
+                        text: response.content.content,
+                        sender: "bot",
+                      },
+                    ];
+                  });
+                } else if (response.type === "error") {
+                  console.error(
+                    "Error from WebSocket:",
+                    response.content.message
+                  );
+                  setMessages((prev) => [
+                    ...prev,
+                    {
+                      text: response.content.message || "An error occurred",
+                      sender: "bot",
+                    },
+                  ]);
+                }
+              } catch (error) {
+                console.error("Error parsing WebSocket message:", error);
+              }
+            };
+
+            ws.onclose = (event) => {
+              console.log("WebSocket connection closed", {
+                code: event.code,
+                reason: event.reason,
+                wasClean: event.wasClean,
+              });
+              if (!event.wasClean) {
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    text: "Connection lost. Please refresh the page.",
+                    sender: "bot",
+                  },
+                ]);
+              }
+            };
+
+            ws.onerror = (error) => {
+              console.error("WebSocket error:", {
+                error,
+                readyState: ws.readyState,
+              });
+              setMessages((prev) => [
+                ...prev,
+                {
+                  text: "Connection error. Please try again.",
+                  sender: "bot",
+                },
+              ]);
+              reject(error);
+              ws.close();
+            };
+
+            // setTimeout(() => {
+            //   if (ws.readyState === WebSocket.CONNECTING) {
+            //     console.error(
+            //       "WebSocket connection timeout - still in CONNECTING state"
+            //     );
+            //     reject(new Error("WebSocket connection timeout"));
+            //     ws.close();
+            //   }
+            // }, 10000);
+          });
         } catch (error) {
-          console.error("Error sending message:", error);
+          console.error("Error in WebSocket setup:", error);
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: "Sorry, there was an error. Please try again.",
+              sender: "bot",
+            },
+          ]);
         } finally {
-          ws.close();
+          setIsLoading(false);
         }
       }
 
@@ -231,11 +344,9 @@ export function ChatBot() {
         throw new Error(`HTTP error! status: ${response!.status}`);
       }
 
-      if (
-        selectedEndpoint === "lambdaUrl" ||
-        selectedEndpoint === "websocketUrl"
-      ) {
+      if (selectedEndpoint === "lambdaUrl") {
         const reader = response!.body?.getReader();
+        console.log(response);
         let result = "";
         if (reader) {
           while (true) {
@@ -388,7 +499,7 @@ export function ChatBot() {
                 <span>Rest API</span>
               </div>
             </SelectItem>
-            <SelectItem value="webSocketUrl" className="flex items-center">
+            <SelectItem value="websocketUrl" className="flex items-center">
               <div className="flex items-center space-x-2">
                 <Wifi className="h-4 w-4" />
                 <span>Websocket API</span>
