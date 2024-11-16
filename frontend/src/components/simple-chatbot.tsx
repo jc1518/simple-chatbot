@@ -222,8 +222,6 @@ export function ChatBot() {
             ws.onmessage = (event) => {
               try {
                 const response = JSON.parse(event.data);
-                console.log("Parsed WebSocket message:", response);
-
                 if (
                   response.type === "message" &&
                   response.content?.type === "chunk"
@@ -311,15 +309,15 @@ export function ChatBot() {
               ws.close();
             };
 
-            // setTimeout(() => {
-            //   if (ws.readyState === WebSocket.CONNECTING) {
-            //     console.error(
-            //       "WebSocket connection timeout - still in CONNECTING state"
-            //     );
-            //     reject(new Error("WebSocket connection timeout"));
-            //     ws.close();
-            //   }
-            // }, 10000);
+            setTimeout(() => {
+              if (ws.readyState === WebSocket.CONNECTING) {
+                console.error(
+                  "WebSocket connection timeout - still in CONNECTING state"
+                );
+                reject(new Error("WebSocket connection timeout"));
+                ws.close();
+              }
+            }, 10000);
           });
         } catch (error) {
           console.error("Error in WebSocket setup:", error);
