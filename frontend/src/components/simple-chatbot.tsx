@@ -8,14 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ControlButtons } from "./ui/control-buttons";
 import {
   Send,
   Bot,
@@ -429,9 +423,6 @@ export function ChatBot() {
     }
   };
 
-  const sharedButtonClass =
-    "h-9 px-3 flex items-center space-x-2 text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md ring-offset-background transition-colors";
-
   return (
     <Card className="w-[90vw] max-w-6xl h-[90vh] flex flex-col shadow-xl">
       <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
@@ -456,75 +447,14 @@ export function ChatBot() {
         handleSend={handleSend}
         isLoading={isLoading}
       />
-      <div className="flex justify-center space-x-4 mx-4 mb-4">
-        <Select
-          value={selectedEndpoint}
-          onValueChange={(value) =>
-            setSelectedEndpoint(value as keyof Backends)
-          }
-        >
-          <SelectTrigger className={`w-[180px] ${sharedButtonClass}`}>
-            <SelectValue>
-              <div className="flex items-center space-x-2">
-                {selectedEndpoint === "lambdaUrl" ? (
-                  <>
-                    <Link className="h-4 w-4" />
-                    <span>Lambda URL</span>
-                  </>
-                ) : selectedEndpoint === "apiUrl" ? (
-                  <>
-                    <Network className="h-4 w-4" />
-                    <span>Rest API</span>
-                  </>
-                ) : (
-                  <>
-                    <Network className="h-4 w-4" />
-                    <span>Websocket API</span>
-                  </>
-                )}
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="lambdaUrl" className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Link className="h-4 w-4" />
-                <span>Lambda URL</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="apiUrl" className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Network className="h-4 w-4" />
-                <span>Rest API</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="websocketUrl" className="flex items-center">
-              <div className="flex items-center space-x-2">
-                <Wifi className="h-4 w-4" />
-                <span>Websocket API</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={clearHistory}
-          className={sharedButtonClass}
-        >
-          <Trash2 className="h-4 w-4" />
-          <span>Clear History</span>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSignOut}
-          className={sharedButtonClass}
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sign Out</span>
-        </Button>
-      </div>
+      <ControlButtons
+        selectedEndpoint={selectedEndpoint}
+        setSelectedEndpoint={(value) =>
+          setSelectedEndpoint(value as keyof Backends)
+        }
+        clearHistory={clearHistory}
+        handleSignOut={handleSignOut}
+      />
     </Card>
   );
 }
@@ -532,36 +462,6 @@ export function ChatBot() {
 interface MessageListProps {
   messages: Message[];
 }
-
-// function MessageList({ messages }: MessageListProps) {
-//   const messagesEndRef = useRef<HTMLDivElement>(null);
-//   const prevMessagesLengthRef = useRef(messages.length);
-
-//   useEffect(() => {
-//     // Only scroll if:
-//     // 1. We have new messages (not just loading state changes)
-//     // 2. The last message is not a loading indicator
-//     const lastMessage = messages[messages.length - 1];
-//     const hasNewMessage = messages.length > prevMessagesLengthRef.current;
-//     const isNotLoading = !lastMessage?.isLoading;
-
-//     if (hasNewMessage && isNotLoading) {
-//       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-//     }
-
-//     // Update the previous length reference
-//     prevMessagesLengthRef.current = messages.length;
-//   }, [messages]);
-
-//   return (
-//     <div className="flex flex-col h-[600px] overflow-y-auto">
-//       {messages.map((msg, index) => (
-//         <MessageBubble key={index} message={msg} />
-//       ))}
-//       <div ref={messagesEndRef} />
-//     </div>
-//   );
-// }
 
 function MessageList({ messages }: MessageListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
