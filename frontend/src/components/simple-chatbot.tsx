@@ -43,6 +43,7 @@ Amplify.configure(AmplifyConfig);
 interface Message {
   text: string;
   sender: "user" | "bot";
+  isLoading?: boolean;
 }
 
 interface BedrockMessage {
@@ -532,13 +533,81 @@ interface MessageListProps {
   messages: Message[];
 }
 
+// function MessageList({ messages }: MessageListProps) {
+//   const messagesEndRef = useRef<HTMLDivElement>(null);
+//   const prevMessagesLengthRef = useRef(messages.length);
+
+//   useEffect(() => {
+//     // Only scroll if:
+//     // 1. We have new messages (not just loading state changes)
+//     // 2. The last message is not a loading indicator
+//     const lastMessage = messages[messages.length - 1];
+//     const hasNewMessage = messages.length > prevMessagesLengthRef.current;
+//     const isNotLoading = !lastMessage?.isLoading;
+
+//     if (hasNewMessage && isNotLoading) {
+//       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//     }
+
+//     // Update the previous length reference
+//     prevMessagesLengthRef.current = messages.length;
+//   }, [messages]);
+
+//   return (
+//     <div className="flex flex-col h-[600px] overflow-y-auto">
+//       {messages.map((msg, index) => (
+//         <MessageBubble key={index} message={msg} />
+//       ))}
+//       <div ref={messagesEndRef} />
+//     </div>
+//   );
+// }
+
 function MessageList({ messages }: MessageListProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef(messages.length);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current && containerRef.current) {
+      const container = containerRef.current;
+      const scrollTarget = messagesEndRef.current;
+
+      container.scrollTo({
+        top: scrollTarget.offsetTop,
+        behavior,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    const hasNewMessage = messages.length > prevMessagesLengthRef.current;
+    const isNotLoading = !lastMessage?.isLoading;
+
+    if (hasNewMessage) {
+      if (lastMessage.sender === "user") {
+        // For user messages, scroll immediately but smoothly
+        scrollToBottom("smooth");
+      } else if (isNotLoading) {
+        // For bot messages, add a small delay
+        setTimeout(() => scrollToBottom("smooth"), 100);
+      }
+    }
+
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages]);
+
   return (
-    <>
+    <div
+      ref={containerRef}
+      className="flex flex-col h-[600px] overflow-y-auto scroll-smooth"
+    >
       {messages.map((msg, index) => (
         <MessageBubble key={index} message={msg} />
       ))}
-    </>
+      <div ref={messagesEndRef} className="h-4" />
+    </div>
   );
 }
 
@@ -582,6 +651,25 @@ function MessageBubble({ message }: MessageBubbleProps) {
       }
     });
   };
+
+  if (message.isLoading) {
+    return (
+      <div className="flex mb-4 justify-start">
+        <div className="flex items-start space-x-2 max-w-[80%]">
+          <div className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+            <Bot className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          </div>
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-2">
+            <div className="flex space-x-2">
+              <div className="animate-bounce">●</div>
+              <div className="animate-bounce delay-100">●</div>
+              <div className="animate-bounce delay-200">●</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
