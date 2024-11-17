@@ -1,11 +1,11 @@
-import { Button } from "./button";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./select";
+} from "./ui/select";
 import { Link, Network, Wifi, Trash2, LogOut } from "lucide-react";
 
 interface ControlButtonsProps {
