@@ -28,11 +28,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
     return segments.map((segment, index) => {
       if (segment.type === "text") {
-        return (
-          <p key={index} className="whitespace-pre-wrap">
-            {segment.content}
+        return segment.content.split("\n").map((line, lineIndex) => (
+          <p key={`${index}-${lineIndex}`} className="whitespace-pre-wrap">
+            {line}
           </p>
-        );
+        ));
       } else {
         return (
           <div key={index} className="my-2">
