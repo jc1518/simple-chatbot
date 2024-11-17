@@ -19,7 +19,7 @@ export async function converseStreamWithModel(
   const command = new ConverseStreamCommand({
     modelId,
     messages: conversation,
-    system: [{ text: prompt }],
+    // system: [{ text: prompt }],
     inferenceConfig: {
       maxTokens: 4096,
       temperature: 0.5,
