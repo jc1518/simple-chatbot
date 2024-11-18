@@ -406,11 +406,11 @@ export function ChatBot() {
   };
 
   return (
-    <Card className="w-[95vw] md:w-[90vw] max-w-6xl h-[98vh] md:h-[90vh] flex flex-col shadow-xl rounded-2xl bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black">
-      <CardHeader className="border-b bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+    <Card className="w-[95vw] md:w-[90vw] max-w-6xl h-[98vh] md:h-[90vh] flex flex-col shadow-xl rounded-2xl bg-gradient-to-b from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-black">
+      <CardHeader className="border-b bg-white/30 dark:bg-black/30 backdrop-blur-sm">
         <div className="flex items-center justify-center space-x-3">
-          <div className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300">
-            <Bot className="h-6 w-6 text-blue-600" />
+          <div className="p-2 rounded-full bg-gradient-to-br from-indigo-100 to-purple-200 hover:from-indigo-200 hover:to-purple-300 transition-all duration-300">
+            <Bot className="h-6 w-6 text-indigo-600" />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-800">
             Simple Chatbot
