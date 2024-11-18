@@ -1,6 +1,7 @@
 import { Message } from "./simple-chatbot";
 import { Bot, User } from "lucide-react";
 import { CodeBlock } from "./code-block";
+import { motion } from "framer-motion";
 
 interface MessageBubbleProps {
   message: Message;
@@ -29,13 +30,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     return segments.map((segment, index) => {
       if (segment.type === "text") {
         return segment.content.split("\n").map((line, lineIndex) => (
-          <p key={`${index}-${lineIndex}`} className="whitespace-pre-wrap">
+          <p
+            key={`${index}-${lineIndex}`}
+            className="whitespace-pre-wrap leading-relaxed"
+          >
             {line}
           </p>
         ));
       } else {
         return (
-          <div key={index} className="my-2">
+          <div key={index} className="my-3">
             <CodeBlock code={segment.content} language={segment.language!} />
           </div>
         );
@@ -45,12 +49,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   if (message.isLoading) {
     return (
-      <div className="flex mb-4 justify-start">
-        <div className="flex items-start space-x-2 max-w-[80%]">
-          <div className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex mb-6 justify-start"
+      >
+        <div className="flex items-start space-x-3 max-w-[85%]">
+          <div className="p-2.5 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 shadow-sm">
             <Bot className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </div>
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-2">
+          <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl px-5 py-3 shadow-sm">
             <div className="flex space-x-2">
               <div className="animate-bounce">●</div>
               <div className="animate-bounce delay-100">●</div>
@@ -58,26 +66,28 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div
-      className={`flex mb-4 ${
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`flex mb-6 ${
         message.sender === "user" ? "justify-end" : "justify-start"
       }`}
     >
       <div
-        className={`flex items-start space-x-2 max-w-[80%] ${
+        className={`flex items-start space-x-3 max-w-[85%] ${
           message.sender === "user" ? "flex-row-reverse space-x-reverse" : ""
         }`}
       >
         <div
-          className={`p-2 rounded-full ${
+          className={`p-2.5 rounded-full shadow-sm ${
             message.sender === "user"
-              ? "bg-blue-600"
-              : "bg-gray-200 dark:bg-gray-700"
+              ? "bg-gradient-to-br from-blue-500 to-blue-600"
+              : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800"
           }`}
         >
           {message.sender === "user" ? (
@@ -87,15 +97,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           )}
         </div>
         <div
-          className={`p-4 rounded-lg ${
+          className={`p-5 rounded-2xl shadow-sm ${
             message.sender === "user"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 dark:bg-gray-800"
+              ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+              : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900"
           }`}
         >
           {renderContent(message.text)}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

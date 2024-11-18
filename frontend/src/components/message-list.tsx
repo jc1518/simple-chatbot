@@ -1,4 +1,5 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { ScrollToBottom } from "./scroll-to-bottom";
 import { Message } from "./simple-chatbot";
 import { MessageBubble } from "./message-bubble";
 
@@ -7,6 +8,7 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef(messages.length);
@@ -42,14 +44,26 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages]);
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col h-[600px] overflow-y-auto scroll-smooth"
-    >
-      {messages.map((msg, index) => (
-        <MessageBubble key={index} message={msg} />
-      ))}
-      <div ref={messagesEndRef} className="h-4" />
+    <div className="relative">
+      <div
+        ref={containerRef}
+        onScroll={(e) => {
+          const target = e.target as HTMLDivElement;
+          const isNearBottom =
+            target.scrollHeight - target.scrollTop - target.clientHeight < 100;
+          setShowScrollButton(!isNearBottom);
+        }}
+        className="flex flex-col h-[600px] overflow-y-auto scroll-smooth px-4"
+      >
+        {messages.map((msg, index) => (
+          <MessageBubble key={index} message={msg} />
+        ))}
+        <div ref={messagesEndRef} className="h-4" />
+        <ScrollToBottom
+          visible={showScrollButton}
+          onClick={() => scrollToBottom("smooth")}
+        />
+      </div>
     </div>
   );
 }
