@@ -406,7 +406,7 @@ export function ChatBot() {
   };
 
   return (
-    <Card className="w-[90vw] max-w-6xl h-[90vh] flex flex-col shadow-xl rounded-2xl bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black">
+    <Card className="w-[95vw] md:w-[90vw] max-w-6xl h-[98vh] md:h-[90vh] flex flex-col shadow-xl rounded-2xl bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black">
       <CardHeader className="border-b bg-white/50 dark:bg-black/50 backdrop-blur-sm">
         <div className="flex items-center justify-center space-x-3">
           <div className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300">

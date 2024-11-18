@@ -53,7 +53,7 @@ export function MessageList({ messages }: MessageListProps) {
             target.scrollHeight - target.scrollTop - target.clientHeight < 100;
           setShowScrollButton(!isNearBottom);
         }}
-        className="flex flex-col h-[600px] overflow-y-auto scroll-smooth px-4"
+        className="message-list-container flex flex-col overflow-y-auto scroll-smooth message-scroll-area"
       >
         {messages.map((msg, index) => (
           <MessageBubble key={index} message={msg} />

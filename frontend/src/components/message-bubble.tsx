@@ -52,7 +52,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex mb-6 justify-start"
+        className="flex mb-4 justify-start message-transition"
       >
         <div className="flex items-start space-x-3 max-w-[85%]">
           <div className="p-2.5 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 shadow-sm">

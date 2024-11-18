@@ -18,7 +18,7 @@ export function ChatInput({
   isLoading,
 }: ChatInputProps) {
   return (
-    <CardFooter className="border-t p-6 bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900/50">
+    <CardFooter className="chat-input-container">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -30,7 +30,7 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-grow shadow-sm text-base py-6 px-4 rounded-xl border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-200"
+          className="flex-grow shadow-sm text-base py-4 md:py-6 px-3 md:px-4 rounded-xl border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-200"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

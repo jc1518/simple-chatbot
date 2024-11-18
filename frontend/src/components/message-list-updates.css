@@ -1,0 +1,63 @@
+/* Mobile-first responsive styles */
+.message-list-container {
+  height: calc(100vh - 180px);
+  max-height: 100%;
+  padding: 1rem;
+}
+
+/* Custom scrollbar styles */
+.message-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.message-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.message-scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+/* Message bubble responsive adjustments */
+.message-bubble {
+  max-width: 85%;
+}
+
+@media (max-width: 640px) {
+  .message-bubble {
+    max-width: 90%;
+  }
+  
+  .message-list-container {
+    height: calc(100vh - 160px);
+    padding: 0.75rem;
+  }
+}
+
+/* Smooth animations */
+.message-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Input area optimizations */
+.chat-input-container {
+  position: sticky;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 1rem;
+  margin: 0 -1rem;
+}
+
+@media (max-width: 640px) {
+  .chat-input-container {
+    padding: 0.75rem;
+  }
+}
