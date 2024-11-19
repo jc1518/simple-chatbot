@@ -1,0 +1,74 @@
+/* Cyberpunk theme colors and styles */
+:root {
+  --neon-pink: #ff206e;
+  --neon-blue: #00fff5;
+  --neon-purple: #9f00ff;
+  --cyber-yellow: #ffee00;
+  --dark-bg: #120458;
+  --darker-bg: #060221;
+  --cyber-teal: #00ffd5;
+}
+
+/* Global cyberpunk styles */
+body {
+  background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+  color: #ffffff;
+}
+
+/* Card cyberpunk styling */
+.card {
+  background: rgba(18, 4, 88, 0.7) !important;
+  border: 1px solid var(--neon-blue) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 245, 0.2) !important;
+}
+
+/* Message bubble cyberpunk gradients */
+.message-bubble-user {
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)) !important;
+  box-shadow: 0 0 15px rgba(255, 32, 110, 0.3) !important;
+}
+
+.message-bubble-bot {
+  background: linear-gradient(135deg, var(--dark-bg), var(--cyber-teal)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(0, 255, 213, 0.3) !important;
+}
+
+.bot-icon {
+  background: linear-gradient(135deg, var(--cyber-teal), var(--neon-blue)) !important;
+}
+
+.user-icon {
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)) !important;
+}
+
+/* Typing indicator animation colors */
+.typing-indicator {
+  color: var(--cyber-teal) !important;
+}
+
+/* Text gradients */
+.cyber-text {
+  background: linear-gradient(90deg, var(--neon-blue), var(--cyber-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Input field cyberpunk style */
+.chat-input {
+  background: rgba(18, 4, 88, 0.5) !important;
+  border: 1px solid var(--neon-blue) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 245, 0.1) !important;
+}
+
+/* Button cyberpunk style */
+.cyber-button {
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)) !important;
+  box-shadow: 0 0 15px rgba(255, 32, 110, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+  box-shadow: 0 0 25px rgba(255, 32, 110, 0.5) !important;
+  transform: translateY(-2px);
+}

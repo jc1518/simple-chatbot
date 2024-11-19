@@ -22,10 +22,10 @@ export function ControlButtons({
   handleSignOut,
 }: ControlButtonsProps) {
   return (
-    <div className="border-t bg-gray-50/50 backdrop-blur-sm px-3 sm:px-6 py-3 sm:py-4">
+    <div className="border-t border-neon-blue bg-black/50 backdrop-blur-sm px-3 sm:px-6 py-3 sm:py-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between max-w-2xl mx-auto gap-3">
         <Select value={selectedEndpoint} onValueChange={setSelectedEndpoint}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-white hover:bg-gray-50 transition-colors duration-200 border-gray-200 shadow-sm h-auto py-2">
+          <SelectTrigger className="w-full sm:w-[180px] chat-input text-white transition-colors duration-200 h-auto py-2">
             <SelectValue>
               <div className="flex items-center space-x-2">
                 {selectedEndpoint === "lambdaUrl" ? (
@@ -73,7 +73,7 @@ export function ControlButtons({
           <Button
             variant="outline"
             onClick={clearHistory}
-            className="flex-1 sm:flex-initial h-auto py-2 px-4 bg-white hover:bg-red-50 text-red-600 border-red-200 hover:border-red-300 transition-colors duration-200"
+            className="flex-1 sm:flex-initial h-auto py-2 px-4 cyber-button text-white transition-colors duration-200"
           >
             <Trash2 className="h-4 w-4 mr-2 flex-shrink-0" />
             <span className="whitespace-nowrap">Clear History</span>
@@ -82,7 +82,7 @@ export function ControlButtons({
           <Button
             variant="outline"
             onClick={handleSignOut}
-            className="flex-1 sm:flex-initial h-auto py-2 px-4 bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 transition-colors duration-200"
+            className="flex-1 sm:flex-initial h-auto py-2 px-4 cyber-button text-white transition-colors duration-200"
           >
             <LogOut className="h-4 w-4 mr-2 flex-shrink-0" />
             <span className="whitespace-nowrap">Sign Out</span>

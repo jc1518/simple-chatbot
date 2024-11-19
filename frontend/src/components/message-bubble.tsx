@@ -58,7 +58,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <div className="p-2.5 rounded-full bg-gradient-to-br from-cyan-200 to-blue-300 dark:from-cyan-700 dark:to-blue-800 shadow-sm">
             <Bot className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </div>
-          <div className="bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900 dark:to-blue-950 rounded-2xl px-5 py-3 shadow-sm">
+          <div className="bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-800 dark:to-blue-900 rounded-2xl px-5 py-3 shadow-sm text-gray-800 dark:text-gray-100">
             <div className="flex space-x-2">
               <div className="animate-bounce">●</div>
               <div className="animate-bounce delay-100">●</div>
@@ -86,8 +86,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <div
           className={`p-2.5 rounded-full shadow-sm ${
             message.sender === "user"
-              ? "bg-gradient-to-br from-blue-500 to-cyan-600"
-              : "bg-gradient-to-br from-cyan-200 to-blue-300 dark:from-cyan-700 dark:to-blue-800"
+              ? "user-icon"
+              : "bot-icon"
           }`}
         >
           {message.sender === "user" ? (
@@ -99,8 +99,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <div
           className={`p-5 rounded-2xl shadow-sm ${
             message.sender === "user"
-              ? "bg-gradient-to-br from-blue-500 to-cyan-600 text-white"
-              : "bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900 dark:to-blue-950"
+              ? "message-bubble-user text-white"
+              : "message-bubble-bot"
           }`}
         >
           {renderContent(message.text)}
