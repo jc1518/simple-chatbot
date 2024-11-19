@@ -18,19 +18,19 @@ export function ChatInput({
   isLoading,
 }: ChatInputProps) {
   return (
-    <CardFooter className="chat-input-container">
+    <CardFooter>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="flex w-full items-center space-x-3"
+        className="flex w-full items-center space-x-2 px-2 sm:px-3 md:px-4"
       >
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-grow shadow-sm text-base py-4 md:py-6 px-3 md:px-4 rounded-xl border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-200"
+          className="flex-grow shadow-sm text-base rounded-xl border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-200 h-11"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -43,7 +43,7 @@ export function ChatInput({
             type="submit"
             size="lg"
             disabled={isLoading || !input.trim()}
-            className="shadow-sm bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-6 py-6"
+            className="shadow-sm bg-blue-500 hover:bg-blue-600 text-white rounded-xl w-11 h-11 p-0 flex items-center justify-center"
           >
             <Send className="h-5 w-5" />
             <span className="sr-only">Send</span>

@@ -1,5 +1,40 @@
 /* Mobile-first responsive styles */
 .message-list-container {
+  min-height: calc(100vh - 220px);
+  max-height: calc(100vh - 220px);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .message-list-container {
+    min-height: calc(100vh - 240px);
+    max-height: calc(100vh - 240px);
+  }
+}
+
+.message-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.message-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.message-scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.message-scroll-area::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8);
+}
+.message-list-container {
   height: calc(100vh - 180px);
   max-height: 100%;
   padding: 1rem;

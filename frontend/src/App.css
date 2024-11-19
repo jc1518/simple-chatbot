@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: left;
+  background-color: #f0f9ff;  /* light blue background */
+  min-height: 100vh;
 }
 
 .logo {
