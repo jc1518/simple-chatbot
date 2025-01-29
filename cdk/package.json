@@ -24,7 +24,7 @@
   "dependencies": {
     "@aws-sdk/client-apigatewaymanagementapi": "^3.693.0",
     "@aws-sdk/client-bedrock-runtime": "^3.687.0",
-    "aws-cdk-lib": "2.165.0",
+    "aws-cdk-lib": "2.177.0",
     "constructs": "^10.0.0",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.2.0",
