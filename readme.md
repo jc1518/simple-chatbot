@@ -2,7 +2,7 @@
 
 ## Description
 
-Simple Chatbot is a sample project to demostrate how to build a Chatbot with AWS serverless architecture.
+Simple Chatbot is a sample project to demonstrate how to build a Chatbot with AWS serverless architecture.
 
 The frontend is written in React and deployed to CloudFront with Cognito authentication.
 
@@ -14,7 +14,15 @@ The backend has 3 options:
 
 Lambda uses Converse API to interact with LLM models in Bedrock.
 
-The conversation history is stored in browser local storage for simpility.
+The conversation history is stored in browser local storage for simplicity.
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration:
+
+- **CDK Tests**: Automatically runs tests for the CDK infrastructure code on push
+- **Frontend CI**: Lints and builds the frontend React application on push
+- **Main Workflow**: Comprehensive workflow that runs both CDK tests and frontend build
 
 ![simple_chatbot](./diagrams/simple-chatbot.png)
 
